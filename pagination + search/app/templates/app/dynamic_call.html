@@ -1,0 +1,63 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<div class="main-wrapper">
+	<h3>This is our list</h3>
+
+	<form id="jsform">
+		<input id="search" type="text" placeholder="Search Posts" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="list-wrapper"></div>
+	<h5>Pagination</h5>
+	<div id="pagination-wrapper"></div>
+</div>
+
+<script>
+	var list = [];
+	var page;
+    var numberOfPages;	
+
+
+    function loadPosts(page){
+		var url = `/api/posts_dynamic/${page}/`
+		var search = $('#search').val()
+
+		$.ajax({
+			method:"GET",
+			url:url,
+			data:{'search':search},
+			success:function(response){
+				list = response.posts
+				numberOfPages = response.count
+				drawList();
+			}
+		})
+	}
+
+	function pageClick() {
+	   page = this.value;
+	   loadPosts(page)
+	}
+
+	function drawList() {
+	    document.getElementById("list-wrapper").innerHTML = "";
+	    for (i = 0; i < list.length; i++) {
+	        document.getElementById("list-wrapper").innerHTML += list[i].title + "<br/>";
+	    }
+
+	    var pages = document.getElementById("pagination-wrapper");
+	     pages.innerHTML = ` `;
+	    for (i = 1; i < numberOfPages + 1; i++) {
+	        pages.innerHTML += ` <input type="button" class="page" id="${i}"  value="${i}" />`;
+	    }
+	      $('.page').on('click', pageClick)
+	}
+
+	loadPosts(1)
+
+	$('#jsform').submit(function(e){
+			e.preventDefault();
+			loadPosts(1)
+		});
+</script>
